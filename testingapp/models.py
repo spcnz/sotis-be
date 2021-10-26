@@ -1,5 +1,5 @@
-from datetime import datetime
-from testingapp import db, flask_bcrypt
+import datetime
+from testingapp import db, flask_bcrypt, app
 import jwt
 
 
@@ -26,16 +26,16 @@ class User(db.Model):
     def __repr__(self):
         return "<User '{}'>".format(self.email)
 
-    def encode_auth_token(self, user_id):
+    def encode_auth_token(self):
         """
         Generates the Auth Token
         :return: string
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=5),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=3, seconds=5),
                 'iat': datetime.datetime.utcnow(),
-                'id': user_id
+                'id': self.id
             }
             return jwt.encode(
                 payload,

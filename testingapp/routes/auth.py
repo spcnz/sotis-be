@@ -2,6 +2,7 @@ from testingapp import db, app, flask_bcrypt
 from testingapp.models import User
 from flask import request, jsonify
 import jwt
+from functools import wraps
 import datetime
 
 @app.route('/register', methods=['POST'])
@@ -21,8 +22,7 @@ def login_user():
  
    user = User.query.filter_by(email=auth["email"]).first()  
    if (flask_bcrypt.check_password_hash(user.password_hash, auth["password"])):
-       token = jwt.encode({'id' : user.id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=45)}, app.config['SECRET_KEY'], "HS256")
+        token = user.encode_auth_token()
+        return jsonify({'token' : token.decode("utf-8")  })
  
-       return jsonify({'token' : token})
- 
-   return make_response('could not verify',  401, {'Authentication': '"login required"'})
+
