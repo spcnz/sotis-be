@@ -116,6 +116,10 @@ class Submission_Mode(enum.Enum):
     INDIVIDUAL = 1
     SIMULTANEOUS = 2
 
+class Interaction(enum.Enum):
+    TEXT = 1
+    CHOICE = 2
+
 
 class Part(db.Model, SerializerMixin):
     __tablename__ = 'parts'
@@ -144,6 +148,13 @@ class Section(db.Model, SerializerMixin):
 class Item(db.Model, SerializerMixin):
     __tablename__ = 'items'
 
+    interaction = db.Column(db.String(50))
+
+    __mapper_args__ = {
+        'polymorphic_identity':'users',
+        'polymorphic_on':interaction
+    }
+
     id = db.Column(db.Integer, primary_key=True)
     time_dependancy = db.Column(db.Boolean(), default=False)
     correct_answer = db.Column(db.String(20), nullable=False)
@@ -151,3 +162,24 @@ class Item(db.Model, SerializerMixin):
     question = db.Column(db.Text(), nullable=False)
     section_id = db.Column(db.Integer, db.ForeignKey('sections.id'))
     section = db.relationship('Section')
+    response = db.Column(db.Text())
+    answer = db.Column(db.Text())
+
+
+class ChoiceItem(Item, SerializerMixin):
+
+    max_choices = db.Column(db.Integer, default=1)
+    __mapper_args__ = {
+        'polymorphic_identity':'interaction'
+    }
+    options = db.relationship("Option", backref="item", lazy='dynamic')
+
+
+class Option(db.Model, SerializerMixin):
+    __tablename__ = 'options'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    label = db.Column(db.String(10), nullable=False)    
+    item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
+    item = db.relationship('Item')
