@@ -10,6 +10,10 @@ app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 
 db = SQLAlchemy(app)
+db.drop_all()
+db.create_all()
+
+
 flask_bcrypt = Bcrypt(app)
 migrate = Migrate(app, db)
 

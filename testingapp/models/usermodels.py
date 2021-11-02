@@ -58,7 +58,7 @@ class Student(User, SerializerMixin):
     __tablename__ = 'students'
 
     __mapper_args__ = {
-        'polymorphic_identity': 'student'
+        'polymorphic_identity': 'teacher'
     }
 
     serialize_rules = ('-password_hash')
