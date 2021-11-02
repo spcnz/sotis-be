@@ -5,19 +5,8 @@ from testingapp.models.testmodels import Test, Subject
 test_bp = Blueprint('test', __name__)
 
 @test_bp.route('/test', methods=['GET'])
-def get():
-    #s = request.json()
-    #print(s)
-    s = Subject()
-    test = Test(title="Test test hehe", time_dependency=True, subject_id=1)
-    db.session.add(test)
-    db.session.commit()
-    new_test2 = Test.query.filter(Test.title=="Test test hehe").first()
-
-    print(test.to_dict())  # mijenja mu indeks automatski objektu
-    print(new_test2.to_dict())
-    return "HVALA"
-
+def get_all():
+    return jsonify([test.to_dict() for test in Test.query.all()])
 
 @test_bp.route('/test', methods=['POST'])
 def create_test():
