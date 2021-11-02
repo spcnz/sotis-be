@@ -3,11 +3,11 @@ from sqlalchemy_serializer import SerializerMixin
 
 subject_teacher = db.Table('subject_teacher',
                            db.Column('teacher_id', db.Integer, db.ForeignKey('teachers.id')),
-                           db.Column('subject_id', db.Integer, db.ForeignKey('students.id'))
+                           db.Column('subject_id', db.Integer, db.ForeignKey('subjects.id'))
                            )
 subject_student = db.Table('subject_student',
                            db.Column('student_id', db.Integer, db.ForeignKey('students.id')),
-                           db.Column('subject_id', db.Integer, db.ForeignKey('students.id'))
+                           db.Column('subject_id', db.Integer, db.ForeignKey('subjects.id'))
                            )
 
 
@@ -72,7 +72,7 @@ class Teacher(User, SerializerMixin):
     __tablename__ = 'teachers'
 
     __mapper_args__ = {
-        'polymorphic_identity': 'student'
+        'polymorphic_identity': 'teacher'
     }
 
     serialize_rules = ('-password_hash')
