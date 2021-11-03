@@ -32,4 +32,4 @@ def get_test_parts():
     print(test_id)
     parts = Part.query.filter_by(test_id = test_id).all()
 
-    return jsonify(parts)
+    return jsonify([part.to_dict() for part in parts])
