@@ -5,9 +5,12 @@ class NavigationMode(enum.Enum):
     NON_LINEAR = 2
 
 
+
+
 class SubmissionMode(enum.Enum):
     INDIVIDUAL = 1
     SIMULTANEOUS = 2
+
 
 
 class Grade(enum.Enum):

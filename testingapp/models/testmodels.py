@@ -48,11 +48,13 @@ class Test(db.Model, SerializerMixin):
 
 class Part(db.Model, SerializerMixin):
     __tablename__ = 'parts'
+    serialize_rules = ('-sections', '-test')
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), nullable=False)
     navigation_mode = db.Column(db.Enum(NavigationMode), default=NavigationMode.NON_LINEAR)
     submission_mode = db.Column(db.Enum(SubmissionMode), default=SubmissionMode.SIMULTANEOUS)
+
     test_id = db.Column(db.Integer, db.ForeignKey('tests.id'))
     sections = db.relationship("Section", backref="part", lazy='dynamic')
 
