@@ -21,7 +21,7 @@ def signup():
     except Exception as error:
         return jsonify({"msg": str(error.orig)}), 400
 
-     return new_user.to_dict()
+    return jsonify(new_user.to_dict())
 
 
 @auth_bp.route('/login', methods=['POST'])
