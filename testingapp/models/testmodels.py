@@ -70,6 +70,7 @@ class Section(db.Model, SerializerMixin):
 
 class Item(db.Model, SerializerMixin):
     __tablename__ = 'items'
+    serialize_rules = ('-options', '-section')
 
     interaction = db.Column(db.String(50))
 
@@ -79,7 +80,6 @@ class Item(db.Model, SerializerMixin):
     }
 
     id = db.Column(db.Integer, primary_key=True)
-    correct_answer = db.Column(db.String(20), nullable=False)
     score = db.Column(db.Integer, nullable=False)
     question = db.Column(db.Text(), nullable=False)
     section_id = db.Column(db.Integer, db.ForeignKey('sections.id'))
@@ -94,3 +94,5 @@ class Option(db.Model, SerializerMixin):
     name = db.Column(db.String(200), nullable=False)
     label = db.Column(db.String(10), nullable=False)
     item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
+    correct_answer = db.Column(db.Boolean, default=False)
+    checked = db.Column(db.Boolean, default=False)

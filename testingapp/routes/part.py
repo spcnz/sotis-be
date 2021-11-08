@@ -18,10 +18,6 @@ def create_part(test_id):
     new_part = Part(navigation_mode=navigation_mode, submission_mode=submission_mode,test_id=test_id, title=title)
     db.session.add(new_part)
     db.session.commit()
-    print()
-    print(new_part)
-    print(new_part.to_dict())
-    print("MILKENAA")
     return jsonify(new_part.to_dict())
 
 
@@ -29,7 +25,6 @@ def create_part(test_id):
 def get_test_parts():
     data = request.json
     test_id = request.args.get('test_id')
-    print(test_id)
     parts = Part.query.filter_by(test_id = test_id).all()
 
     return jsonify([part.to_dict() for part in parts])
