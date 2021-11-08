@@ -1,5 +1,5 @@
 from faker import Faker
-from testingapp import db
+from testingapp import db, flask_bcrypt
 from testingapp.models.usermodels import *
 from testingapp.models.testmodels import *
 from testingapp.models.enums import *
@@ -11,18 +11,18 @@ teachers = []
 students = []
 subjects = []
 
-def clear_data(session):
-    meta = db.metadata
-    for table in reversed(meta.sorted_tables):
-        print ('Clear table %s' % table)
-        session.execute(table.delete())
-    session.commit()
 
+db.drop_all()
+db.create_all()
 
-clear_data(db.session)
 
 def add_admin():
-    admin = Admin(email=emails[0], first_name=fake.first_name(), last_name=fake.last_name(),password="123456")
+    admin = Admin(
+        email=emails[0], 
+        first_name=fake.first_name(),
+        last_name=fake.last_name(),
+        password_hash=flask_bcrypt.generate_password_hash("123456").decode('utf-8')
+        )
     db.session.add(admin)
     db.session.commit()
 
@@ -32,7 +32,7 @@ def add_teachers():
             email=emails[i], 
             first_name=fake.first_name(), 
             last_name=fake.last_name(),
-            password="123456", 
+            password_hash=flask_bcrypt.generate_password_hash("123456").decode('utf-8'),
             title=fake.prefix()
             )
         db.session.add(teacher)
@@ -45,7 +45,7 @@ def add_students():
             email=emails[i], 
             first_name=fake.first_name(), 
             last_name=fake.last_name(),
-            password="123456", 
+            password_hash=flask_bcrypt.generate_password_hash("123456").decode('utf-8'),
             year_of_study=random.choice([1, 2, 3, 4]), 
             card_num=fake.swift(length=8) + "/" + fake.year()
             )
@@ -54,7 +54,7 @@ def add_students():
         students.append(student)
 
 def add_subjects():
-    for i in range(10):
+    for i in range(3):
         subject = Subject(
             name=fake.text(max_nb_chars=10), 
             description=fake.paragraph(),
@@ -84,8 +84,10 @@ def add_tests():
         test.subject_id = subjects[subject_index].id
         db.session.add(test)
         db.session.commit()
-
         add_parts(test.id)
+
+    return test
+        
 
 def add_parts(test_id):
     for i in range(3):
@@ -101,7 +103,7 @@ def add_parts(test_id):
         add_sections(part.id)
 
 def add_sections(part_id):
-    for i in range(3):
+    for i in range(2):
         section = Section(
             title=fake.text(max_nb_chars=10), 
             part_id=part_id
@@ -139,8 +141,24 @@ def add_options(item_id, max_choices):
         db.session.commit()
         max_choices = max_choices - 1
 
-def add_test_result():
-    pass
+#add test result for one test 
+def add_test_result(test):
+    subject = test.subject
+    student = subject.students[0]
+    for part in test.parts:
+            for section in part.sections:
+                for item in section.items:
+                    for option in item.options:
+                        option_result = OptionResult(
+                                student_id=student.id,
+                                test_id=test.id,
+                                option_id=option.id,
+                                checked=fake.boolean(chance_of_getting_true=50)
+                                )
+                        db.session.add(option_result)
+                        db.session.commit()
+
+
 
 if __name__ == '__main__':
     add_admin()
@@ -151,7 +169,7 @@ if __name__ == '__main__':
     print("\nADDED STUDENTS....\n")
     add_subjects()
     print("\nADDED SUBJECTS....")
-    add_tests()
+    test = add_tests()
     print("\nADDED TESTS....\n")
-    # add_test_result()
-    # print("\nADDED TEST RESULTS....\n")
+    add_test_result(test)
+    print("\nADDED TEST RESULTS....\n")

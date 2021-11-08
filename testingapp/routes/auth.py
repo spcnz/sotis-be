@@ -1,4 +1,4 @@
-from testingapp import db, app, flask_bcrypt, rbac
+from testingapp import db, app, rbac
 from flask import request, jsonify, Blueprint
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, create_refresh_token, \
     fresh_jwt_required
@@ -32,8 +32,8 @@ def login():
     user = User.query.filter_by(email=auth["email"]).first()
     if not user:
         return jsonify({"msg": "Bad username or password"}), 401
-    if flask_bcrypt.check_password_hash(user.password_hash, auth["password"]):
-        access_token = create_access_token(identity=user.id)
+    if user.check_password(auth["password"]):
+        access_token = create_access_token(identity={"id": user.id, "role": user.role})
         refresh_token = create_refresh_token(identity=user.id)
         return jsonify(access_token=access_token, refresh_token=refresh_token)
     else:
