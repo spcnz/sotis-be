@@ -1,12 +1,13 @@
 import os
 from flask import Flask
 from flask_jwt_extended import JWTManager
+from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from datetime import timedelta
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
-from flask_cors import CORS, cross_origin
-
+from flask_cors import CORS
+from flask_rbac import RBAC
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -15,12 +16,15 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 db = SQLAlchemy(app)
-#db.drop_all()
-#db.create_all()
+db.drop_all()
+db.create_all()
 
+rbac = RBAC(app)
+app.config['RBAC_USE_WHITE'] = False
 
 flask_bcrypt = Bcrypt(app)
 migrate = Migrate(app, db)
+
 
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)

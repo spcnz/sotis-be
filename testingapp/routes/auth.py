@@ -1,6 +1,7 @@
-from testingapp import db, app, flask_bcrypt
+from testingapp import db, app, flask_bcrypt, rbac
 from flask import request, jsonify, Blueprint
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, create_refresh_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, create_refresh_token, \
+    fresh_jwt_required
 
 from testingapp.models.usermodels import User
 
@@ -8,6 +9,7 @@ auth_bp = Blueprint('auth', __name__)
 
 
 @auth_bp.route('/register', methods=['POST'])
+@rbac.exempt
 def signup():
     data = request.get_json()
 
@@ -23,6 +25,7 @@ def signup():
 
 
 @auth_bp.route('/login', methods=['POST'])
+@rbac.exempt
 def login():
     auth = request.get_json()
 
@@ -37,9 +40,9 @@ def login():
         return jsonify({"msg": "Bad username or password"}), 401
 
 
-@app.route("/refresh", methods=["POST"])
-@jwt_required(refresh=True)
-def refresh():
-    identity = get_jwt_identity()
-    access_token = create_access_token(identity=identity, fresh=False)
-    return jsonify(access_token=access_token)
+# @app.route("/refresh", methods=["POST"])
+# @jwt_required(fresh_jwt_required)
+# def refresh():
+#     identity = get_jwt_identity()
+#     access_token = create_access_token(identity=identity, fresh=False)
+#     return jsonify(access_token=access_token)
