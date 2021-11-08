@@ -9,7 +9,7 @@ auth_bp = Blueprint('auth', __name__)
 
 
 @auth_bp.route('/register', methods=['POST'])
-@rbac.exempt
+@rbac.allow(['anonymous'], ['GET'])
 def signup():
     data = request.get_json()
 
@@ -25,7 +25,7 @@ def signup():
 
 
 @auth_bp.route('/login', methods=['POST'])
-@rbac.exempt
+@rbac.allow(['anonymous'], ['GET'])
 def login():
     auth = request.get_json()
 
