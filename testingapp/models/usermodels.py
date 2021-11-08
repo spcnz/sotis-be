@@ -14,13 +14,13 @@ subject_student = db.Table('subject_student',
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
-    serialize_rules = ('-password_hash')
+    serialize_rules = ('-password')
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True, nullable=False)
     first_name = db.Column(db.String(255), nullable=False)
     last_name = db.Column(db.String(255), nullable=False)
-    password_hash = db.Column(db.String(100))
+    password = db.Column(db.String(100))
     role = db.Column(db.String(50))
 
     __mapper_args__ = {
@@ -58,7 +58,7 @@ class Student(User, SerializerMixin):
     __tablename__ = 'students'
 
     __mapper_args__ = {
-        'polymorphic_identity': 'teacher'
+        'polymorphic_identity': 'student'
     }
 
     serialize_rules = ('-password_hash')

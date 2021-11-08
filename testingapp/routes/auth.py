@@ -14,14 +14,14 @@ def signup():
     data = request.get_json()
 
     new_user = User(first_name=data['first_name'], last_name=data['last_name'], email=data['email'],
-                    password=data["password"])
+                    password=data["password"], role="teacher")
     try:
         db.session.add(new_user)
         db.session.commit()
     except Exception as error:
         return jsonify({"msg": str(error.orig)}), 400
 
-    return new_user.to_dict()
+     return new_user.to_dict()
 
 
 @auth_bp.route('/login', methods=['POST'])
