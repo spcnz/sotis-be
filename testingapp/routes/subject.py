@@ -5,6 +5,7 @@ from testingapp.models.usermodels import User
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from testingapp.utils.authutils import get_user_if_logged_in
+from testingapp.utils.roleconstants import TEACHER
 
 subject_bp = Blueprint('subject', __name__)
 

@@ -27,8 +27,5 @@ def create_item():
 def get_section_items():
     data = request.json
     section_id = request.args.get('section_id')
-    print(section_id)
     items = Item.query.filter_by(section_id = section_id).all()
-
     return jsonify([item.to_dict() for item in items])
-
