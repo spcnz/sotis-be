@@ -1,4 +1,4 @@
-from testingapp import db, app, flask_bcrypt, rbac
+from testingapp import db, app, flask_bcrypt
 from flask import request, jsonify, Blueprint
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, create_refresh_token, \
     fresh_jwt_required
@@ -9,10 +9,8 @@ auth_bp = Blueprint('auth', __name__)
 
 
 @auth_bp.route('/register', methods=['POST'])
-@rbac.allow(['anonymous'], ['GET'])
 def signup():
     data = request.get_json()
-
     new_user = User(first_name=data['first_name'], last_name=data['last_name'], email=data['email'],
                     password=data["password"])
     try:
@@ -21,11 +19,10 @@ def signup():
     except Exception as error:
         return jsonify({"msg": str(error.orig)}), 400
 
-    return new_user.to_dict()
+    return jsonify(new_user.to_dict())
 
 
 @auth_bp.route('/login', methods=['POST'])
-@rbac.allow(['anonymous'], ['GET'])
 def login():
     auth = request.get_json()
 
