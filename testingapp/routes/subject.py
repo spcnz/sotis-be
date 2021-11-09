@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify, Response
-from testingapp import db
+from testingapp import db, rbac
 from testingapp.models.testmodels import Subject
+from testingapp.models.usermodels import User
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 subject_bp = Blueprint('subject', __name__)
 
@@ -24,5 +26,10 @@ def create_subject():
         return Response(status=400)
 
 @subject_bp.route('/subject', methods=['GET'])
+@jwt_required
 def get_all():
-    return jsonify([sub.to_dict() for sub in Subject.query.all()])
+    user = User.query.get(get_jwt_identity()["id"])
+    if not user:
+        return  Response(status=400)
+
+    return jsonify([sub.to_dict(rules = ('-tests', '-students', 'teachers.id')) for sub in user.subjects])

@@ -7,7 +7,7 @@ from .usermodels import subject_teacher, subject_student
 
 class Subject(db.Model, SerializerMixin):
     __tablename__ = 'subjects'
-    serialize_rules = ('-tests.subject_id', '-tests.subject')
+    serialize_rules = ('-tests', '-students')
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
@@ -18,23 +18,31 @@ class Subject(db.Model, SerializerMixin):
     tests = db.relationship('Test', back_populates='subject')
 
 
-class TestResult(db.Model):
-    __table__name = 'test_results'
+class OptionResult(db.Model, SerializerMixin):
+    __table__name = 'option_result'
     id = db.Column(db.Integer, primary_key=True)
-    start_date = db.Column(db.DateTime, default=datetime.datetime.now)
-    points = db.Column(db.Float, nullable=True)
-    grade = db.Column(db.Enum(Grade), default=Grade.F)
+    serialize_rules = ('-test', '-student', '-option')
 
-    student = db.relationship('Student', backref='test_results')
+
+    # start_date = db.Column(db.DateTime, default=datetime.datetime.now)
+    # points = db.Column(db.Float, nullable=True)
+    # grade = db.Column(db.Enum(Grade), default=Grade.F)
+    checked = db.Column(db.Boolean(), default=False)
+
+    student = db.relationship('Student', backref='option_result')
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'))
 
-    test = db.relationship('Test', backref='test_results')
+    test = db.relationship('Test', backref='option_result')
     test_id = db.Column(db.Integer, db.ForeignKey('tests.id'))
+
+    option = db.relationship('Option', backref='option_result')
+    option_id = db.Column(db.Integer, db.ForeignKey('options.id'))
+
 
 
 class Test(db.Model, SerializerMixin):
     __tablename__ = 'tests'
-    serialize_rules = ('-parts.test', '-subject.tests')
+    serialize_rules = ('-parts', '-subject', '-option_result')
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), nullable=False)
@@ -70,14 +78,7 @@ class Section(db.Model, SerializerMixin):
 
 class Item(db.Model, SerializerMixin):
     __tablename__ = 'items'
-    serialize_rules = ('-options', '-section')
-
-    interaction = db.Column(db.String(50))
-
-    __mapper_args__ = {
-        'polymorphic_identity': 'users',
-        'polymorphic_on': interaction
-    }
+    serialize_rules = ('-section', '-options')
 
     id = db.Column(db.Integer, primary_key=True)
     score = db.Column(db.Integer, nullable=False)
@@ -90,9 +91,11 @@ class Item(db.Model, SerializerMixin):
 class Option(db.Model, SerializerMixin):
     __tablename__ = 'options'
 
+    serialize_rules = ('-item', '-option_result')
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
-    label = db.Column(db.String(10), nullable=False)
+    label = db.Column(db.String(30), nullable=False)
     item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
     correct_answer = db.Column(db.Boolean, default=False)
-    checked = db.Column(db.Boolean, default=False)
+   
