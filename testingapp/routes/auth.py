@@ -12,7 +12,7 @@ auth_bp = Blueprint('auth', __name__)
 def signup():
     data = request.get_json()
     new_user = User(first_name=data['first_name'], last_name=data['last_name'], email=data['email'],
-                    password=data["password"])
+                    password=data["password"], role="teacher")
     try:
         db.session.add(new_user)
         db.session.commit()
@@ -29,8 +29,8 @@ def login():
     user = User.query.filter_by(email=auth["email"]).first()
     if not user:
         return jsonify({"msg": "Bad username or password"}), 401
-    if flask_bcrypt.check_password_hash(user.password_hash, auth["password"]):
-        access_token = create_access_token(identity=user.id)
+    if user.check_password(auth["password"]):
+        access_token = create_access_token(identity={"id": user.id, "role": user.role})
         refresh_token = create_refresh_token(identity=user.id)
         return jsonify(access_token=access_token, refresh_token=refresh_token)
     else:
