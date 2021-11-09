@@ -23,7 +23,6 @@ class OptionResult(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     serialize_rules = ('-test', '-student', '-option')
 
-
     # start_date = db.Column(db.DateTime, default=datetime.datetime.now)
     # points = db.Column(db.Float, nullable=True)
     # grade = db.Column(db.Enum(Grade), default=Grade.F)
@@ -39,11 +38,10 @@ class OptionResult(db.Model, SerializerMixin):
     option_id = db.Column(db.Integer, db.ForeignKey('options.id'))
 
 
-
 class Test(db.Model, SerializerMixin):
     __tablename__ = 'tests'
-    serialize_rules = ('-parts', '-subject', '-option_result')
 
+    serialize_rules = ('-parts', '-subject', '-option_result')
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), nullable=False)
     time_dependency = db.Column(db.Boolean(), default=False)
@@ -98,4 +96,3 @@ class Option(db.Model, SerializerMixin):
     label = db.Column(db.String(30), nullable=False)
     item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
     correct_answer = db.Column(db.Boolean, default=False)
-   

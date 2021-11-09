@@ -50,7 +50,7 @@ class Admin(User, SerializerMixin):
         'polymorphic_identity': 'admin'
     }
 
-    serialize_rules = ('-password_hash')
+    serialize_rules = ('-password_hash', '-password')
     id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
 
 
@@ -61,8 +61,8 @@ class Student(User, SerializerMixin):
         'polymorphic_identity': 'student'
     }
 
-    serialize_rules = ('-password_hash',)
-    
+
+    serialize_rules = ('-password_hash', '-password')
     id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     card_num = db.Column(db.String(20), nullable=False, unique=True)
     year_of_study = db.Column(db.Integer, nullable=False)
@@ -76,7 +76,7 @@ class Teacher(User, SerializerMixin):
         'polymorphic_identity': 'teacher'
     }
 
-    serialize_rules = ('-password_hash', '-subjects')
+    serialize_rules = ('-password_hash', '-password', '-subjects')
     id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     title = db.Column(db.String(50))
     subjects = db.relationship("Subject", secondary=subject_teacher)

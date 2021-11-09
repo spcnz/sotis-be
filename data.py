@@ -1,5 +1,4 @@
 from faker import Faker
-from testingapp import db, flask_bcrypt
 from testingapp.models.usermodels import *
 from testingapp.models.testmodels import *
 from testingapp.models.enums import *
