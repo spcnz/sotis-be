@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, Response
 from testingapp import db
 from testingapp.models.testmodels import Test, Subject
+from testingapp.utils.authutils import get_identity_if_logged_in
 
 test_bp = Blueprint('test', __name__)
 
@@ -11,6 +12,10 @@ def get_all():
 @test_bp.route('/test', methods=['POST'])
 def create_test():
     try:
+        user = get_identity_if_logged_in()
+        print(user)
+
+        return
         data = request.json
         title = data.get('title', 'NO TITLE')
         time_dependency = bool(data.get('time_dependency', False))

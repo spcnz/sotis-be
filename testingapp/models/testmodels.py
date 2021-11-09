@@ -34,7 +34,7 @@ class TestResult(db.Model):
 
 class Test(db.Model, SerializerMixin):
     __tablename__ = 'tests'
-    serialize_rules = ('-parts.test', '-subject.tests')
+    serialize_rules = ('-parts.test', '-subject.tests', '-test_results.tests')
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), nullable=False)
