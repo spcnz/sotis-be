@@ -4,12 +4,18 @@ from testingapp.models.testmodels import Subject
 from testingapp.models.usermodels import User
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from testingapp.utils.authutils import get_user_if_logged_in
+
 subject_bp = Blueprint('subject', __name__)
 
 
 @subject_bp.route('/subject', methods=['POST'])
 def create_subject():
     try:
+        user = get_user_if_logged_in()
+        if not user:
+            return Response(status=401)
+
         data = request.json
         name = data.get('name', 'NO NAME')
         description = data.get('description', '')
@@ -28,8 +34,8 @@ def create_subject():
 @subject_bp.route('/subject', methods=['GET'])
 @jwt_required
 def get_all():
-    user = User.query.get(get_jwt_identity()["id"])
+    user = get_user_if_logged_in()
     if not user:
-        return  Response(status=400)
+        return Response(status=401)
 
     return jsonify([sub.to_dict(rules = ('-tests', '-students', 'teachers.id')) for sub in user.subjects])

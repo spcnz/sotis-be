@@ -41,7 +41,7 @@ class OptionResult(db.Model, SerializerMixin):
 class Test(db.Model, SerializerMixin):
     __tablename__ = 'tests'
 
-    serialize_rules = ('-parts', '-subject', '-option_result')
+    serialize_rules = ('-parts.test', '-subject.test', '-option_result.test')
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), nullable=False)
     time_dependency = db.Column(db.Boolean(), default=False)
@@ -54,7 +54,7 @@ class Test(db.Model, SerializerMixin):
 
 class Part(db.Model, SerializerMixin):
     __tablename__ = 'parts'
-    serialize_rules = ('-sections', '-test')
+    serialize_rules = ('-sections.part', '-test')
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), nullable=False)
@@ -76,7 +76,7 @@ class Section(db.Model, SerializerMixin):
 
 class Item(db.Model, SerializerMixin):
     __tablename__ = 'items'
-    serialize_rules = ('-section', '-options')
+    serialize_rules = ('-section', '-options.item')
 
     id = db.Column(db.Integer, primary_key=True)
     score = db.Column(db.Integer, nullable=False)

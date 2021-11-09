@@ -131,8 +131,8 @@ def add_options(item_id, max_choices):
     option_names = ['A', 'B', 'C', 'D', 'E']
     for i in range(5):
         option = Option(
-            name=option_names[i], 
-            label=fake.text(max_nb_chars=10),
+            name=fake.text(max_nb_chars=10),
+            label=option_names[i],
             correct_answer=(max_choices > 0),
             item_id=item_id,
             )

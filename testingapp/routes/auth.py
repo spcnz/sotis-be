@@ -1,8 +1,11 @@
+from datetime import datetime, timezone
 from testingapp import db, app, flask_bcrypt
+from testingapp import db, app
 from flask import request, jsonify, Blueprint
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, create_refresh_token, \
-    fresh_jwt_required
+    fresh_jwt_required, get_jti, get_raw_jwt
 
+from testingapp.models.tokenblockmodel import TokenBlocklist
 from testingapp.models.usermodels import User
 
 auth_bp = Blueprint('auth', __name__)
@@ -36,6 +39,14 @@ def login():
     else:
         return jsonify({"msg": "Bad username or password"}), 401
 
+
+@auth_bp.route('/logout', methods=['DELETE'])
+def logout():
+    jti =  get_raw_jwt().get('jti', 'none') # outdated dokumentacija, nema vise get_jwt()["jti"]
+    now = datetime.now(timezone.utc)
+    #db.session.add(TokenBlocklist(jti=jwt, created_at=now))
+    #db.session.commit()
+    return jsonify({"msg":"JWT revoked"})
 
 # @app.route("/refresh", methods=["POST"])
 # @jwt_required(fresh_jwt_required)

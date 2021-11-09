@@ -31,3 +31,4 @@ def get_section_items():
     items = Item.query.filter_by(section_id = section_id).all()
 
     return jsonify([item.to_dict() for item in items])
+
