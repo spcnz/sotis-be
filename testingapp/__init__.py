@@ -6,7 +6,6 @@ from datetime import timedelta
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from flask_cors import CORS
-from flask_rbac import RBAC
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -18,8 +17,6 @@ db = SQLAlchemy(app)
 db.drop_all()
 db.create_all()
 
-rbac = RBAC(app)
-app.config['RBAC_USE_WHITE'] = False
 
 flask_bcrypt = Bcrypt(app)
 migrate = Migrate(app, db)

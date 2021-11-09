@@ -14,7 +14,7 @@ subject_student = db.Table('subject_student',
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
-    serialize_rules = ('-password_hash')
+    serialize_rules = ('-password_hash', '-password')
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True, nullable=False)
