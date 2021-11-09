@@ -74,7 +74,7 @@ def add_tests():
     for i in range(3):
         time_dependency = fake.boolean(chance_of_getting_true=50)
         test = Test(
-            title=fake.text(max_nb_chars=10), 
+            title=fake.text(max_nb_chars=20), 
             time_dependency=time_dependency,
             time_limit_seconds=(random.choice([900, 1800, 2700]) if time_dependency else 0),
             )
@@ -91,7 +91,7 @@ def add_tests():
 def add_parts(test_id):
     for i in range(3):
         part = Part(
-            title=fake.text(max_nb_chars=10), 
+            title=fake.text(max_nb_chars=20), 
             navigation_mode=random.choice([e.name for e in NavigationMode]),
             submission_mode=random.choice([e.name for e in SubmissionMode]),
             test_id=test_id

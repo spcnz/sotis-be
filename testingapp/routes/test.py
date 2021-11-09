@@ -1,21 +1,27 @@
 from flask import Blueprint, request, jsonify, Response
 from testingapp import db
 from testingapp.models.testmodels import Test, Subject
-from testingapp.utils.authutils import get_identity_if_logged_in
+from testingapp.models.usermodels import User
+from testingapp.utils.authutils import get_user_if_logged_in
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 test_bp = Blueprint('test', __name__)
 
 @test_bp.route('/test', methods=['GET'])
+@jwt_required
 def get_all():
-    return jsonify([test.to_dict() for test in Test.query.all()])
+    subject_id = request.args.get('subject_id')
+    print(subject_id)
+    
+    return jsonify([test.to_dict() for test in Test.query.filter_by(subject_id=subject_id)])
 
 @test_bp.route('/test', methods=['POST'])
 def create_test():
     try:
-        user = get_identity_if_logged_in()
-        print(user)
+        user = get_user_if_logged_in()
+        if user.role != 'teacher':
+            return Response(status=400)
 
-        return
         data = request.json
         title = data.get('title', 'NO TITLE')
         time_dependency = bool(data.get('time_dependency', False))
@@ -28,3 +34,13 @@ def create_test():
     except Exception as error:
         print(error)
         return Response(status=400)
+
+@test_bp.route('/test/<id>', methods=['GET'])
+@jwt_required
+def get_by_id(id):
+    test = Test.query.get(id)
+    if not test:
+        return Response(status=400)
+
+    
+    return jsonify(test.to_dict(only=('parts.title','parts.id', 'title','time_dependency', 'time_limit_seconds')))

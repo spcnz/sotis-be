@@ -27,4 +27,4 @@ def get_part_sections():
     print(part_id)
     sections = Section.query.filter_by(part_id = part_id).all()
 
-    return jsonify([section.to_dict() for section in sections])
+    return jsonify([section.to_dict(rules=('-items','-part')) for section in sections])
