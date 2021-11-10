@@ -39,15 +39,14 @@ def submit_responses():
         data = request.json
         responses = data.get('responses')
         user = get_user_if_logged_in()
-        option_results = []
         for response in responses:
             checked = response.get('checked')
             test_id = response.get('test_id')
             option_id = response.get('option_id')
             result = OptionResult(checked=checked, test_id=test_id, option_id=option_id, student_id=user.id)
-            option_results.append(result)
+            db.session.merge(result)
 
-        db.session.add_all(option_results)
+        
         db.session.commit()
         return Response(status=200)
     except Exception as error:
