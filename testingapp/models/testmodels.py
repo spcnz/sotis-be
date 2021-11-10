@@ -20,22 +20,31 @@ class Subject(db.Model, SerializerMixin):
 
 class OptionResult(db.Model, SerializerMixin):
     __table__name = 'option_result'
-    id = db.Column(db.Integer, primary_key=True)
+
     serialize_rules = ('-test', '-student', '-option')
 
+    __table_args__ = (
+        db.PrimaryKeyConstraint('student_id', 'test_id','option_id', name="primary_key_constraint"),
+    )
+
+    
     # start_date = db.Column(db.DateTime, default=datetime.datetime.now)
     # points = db.Column(db.Float, nullable=True)
     # grade = db.Column(db.Enum(Grade), default=Grade.F)
-    checked = db.Column(db.Boolean(), default=False)
+
+
+    checked = db.Column(db.Boolean(), nullable=False)
+    is_correct = db.Column(db.Boolean(), nullable=False, default=False)
 
     student = db.relationship('Student', backref='option_result')
-    student_id = db.Column(db.Integer, db.ForeignKey('students.id'))
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
 
     test = db.relationship('Test', backref='option_result')
-    test_id = db.Column(db.Integer, db.ForeignKey('tests.id'))
+    test_id = db.Column(db.Integer, db.ForeignKey('tests.id'), nullable=False)
 
     option = db.relationship('Option', backref='option_result')
-    option_id = db.Column(db.Integer, db.ForeignKey('options.id'))
+    option_id = db.Column(db.Integer, db.ForeignKey('options.id'), nullable=False)
+
 
 
 class Test(db.Model, SerializerMixin):

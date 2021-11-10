@@ -12,8 +12,7 @@ test_bp = Blueprint('test', __name__)
 @jwt_required
 def get_all():
     subject_id = request.args.get('subject_id')
-    print(subject_id)
-
+    
     return jsonify([test.to_dict() for test in Test.query.filter_by(subject_id=subject_id)])
 
 
@@ -45,5 +44,5 @@ def get_by_id(id):
     if not test:
         return Response(status=400)
 
-    #return jsonify(test.to_dict(only=('parts.title', 'parts.id', 'title', 'time_dependency', 'time_limit_seconds')))
-    return jsonify(test.to_dict())
+    
+    return jsonify(test.to_dict(only=('parts.title','parts.id', 'title','time_dependency', 'time_limit_seconds', 'id', 'parts.submission_mode')))

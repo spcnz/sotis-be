@@ -1,7 +1,10 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from testingapp import db
-from testingapp.models.testmodels import Test, Subject, Part
+from testingapp.models.testmodels import Test, Subject, Part, OptionResult
+from testingapp.utils.authutils import get_user_if_logged_in
 from testingapp.models.enums import NavigationMode, SubmissionMode
+from flask_jwt_extended import jwt_required
+
 
 part_bp = Blueprint('part', __name__)
 
@@ -28,3 +31,25 @@ def get_test_parts():
     parts = Part.query.filter_by(test_id = test_id).all()
 
     return jsonify([part.to_dict() for part in parts])
+
+@part_bp.route('/part/submit', methods=['POST'])
+@jwt_required
+def submit_responses():
+    try:
+        data = request.json
+        responses = data.get('responses')
+        user = get_user_if_logged_in()
+        option_results = []
+        for response in responses:
+            checked = response.get('checked')
+            test_id = response.get('test_id')
+            option_id = response.get('option_id')
+            result = OptionResult(checked=checked, test_id=test_id, option_id=option_id, student_id=user.id)
+            option_results.append(result)
+
+        db.session.add_all(option_results)
+        db.session.commit()
+        return Response(status=200)
+    except Exception as error:
+        print(error)
+        return Response(status=400)
