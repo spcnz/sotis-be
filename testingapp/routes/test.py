@@ -45,4 +45,4 @@ def get_by_id(id):
         return Response(status=400)
 
     
-    return jsonify(test.to_dict(only=('parts.title','parts.id', 'title','time_dependency', 'time_limit_seconds', 'id', 'parts.submission_mode')))
+    return jsonify(test.to_dict(only=('parts.title','parts.id', 'title','time_dependency', 'time_limit_seconds', 'id', 'parts.submission', 'parts.navigation')))

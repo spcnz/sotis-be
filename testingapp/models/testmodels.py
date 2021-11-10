@@ -51,6 +51,7 @@ class Test(db.Model, SerializerMixin):
     __tablename__ = 'tests'
 
     serialize_rules = ('-parts.test', '-subject', '-option_result')
+    
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), nullable=False)
     time_dependency = db.Column(db.Boolean(), default=False)
@@ -64,6 +65,12 @@ class Test(db.Model, SerializerMixin):
 class Part(db.Model, SerializerMixin):
     __tablename__ = 'parts'
     serialize_rules = ('-sections.part', '-test')
+
+    def submission(self):
+        return self.submission_mode.name
+
+    def navigation(self):
+        return self.navigation_mode.name
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), nullable=False)
