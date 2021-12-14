@@ -1,7 +1,7 @@
 import datetime
 from sqlalchemy_serializer import SerializerMixin
 from testingapp import db
-from .enums import Grade, NavigationMode, SubmissionMode
+from .enums import NavigationMode, SubmissionMode
 from .usermodels import subject_teacher, subject_student
 
 
@@ -18,24 +18,38 @@ class Subject(db.Model, SerializerMixin):
     tests = db.relationship('Test', back_populates='subject')
 
 
-class OptionResult(db.Model, SerializerMixin):
-    __table__name = 'option_result'
+class ItemResult(db.Model, SerializerMixin):
+    __table__name = "item_result"
     id = db.Column(db.Integer, primary_key=True)
-    serialize_rules = ('-test', '-student', '-option')
+    serialize_rules = ()
 
-    # start_date = db.Column(db.DateTime, default=datetime.datetime.now)
-    # points = db.Column(db.Float, nullable=True)
-    # grade = db.Column(db.Enum(Grade), default=Grade.F)
-    checked = db.Column(db.Boolean(), default=False)
-
-    student = db.relationship('Student', backref='option_result')
+    student = db.relationship('Student', backref='item_result')
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'))
 
-    test = db.relationship('Test', backref='option_result')
-    test_id = db.Column(db.Integer, db.ForeignKey('tests.id'))
+    item = db.relationship('Item', backref='item_result')
+    item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
 
-    option = db.relationship('Option', backref='option_result')
-    option_id = db.Column(db.Integer, db.ForeignKey('options.id'))
+    is_correct = db.Column(db.Boolean(), default=False)
+
+#
+# class OptionResult(db.Model, SerializerMixin):
+#     __table__name = 'option_result'
+#     id = db.Column(db.Integer, primary_key=True)
+#     serialize_rules = ('-test', '-student', '-option')
+#
+#     # start_date = db.Column(db.DateTime, default=datetime.datetime.now)
+#     # points = db.Column(db.Float, nullable=True)
+#     # grade = db.Column(db.Enum(Grade), default=Grade.F)
+#     checked = db.Column(db.Boolean(), default=False)
+#
+#     student = db.relationship('Student', backref='option_result')
+#     student_id = db.Column(db.Integer, db.ForeignKey('students.id'))
+#
+#     test = db.relationship('Test', backref='option_result')
+#     test_id = db.Column(db.Integer, db.ForeignKey('tests.id'))
+#
+#     option = db.relationship('Option', backref='option_result')
+#     option_id = db.Column(db.Integer, db.ForeignKey('options.id'))
 
 
 class Test(db.Model, SerializerMixin):
@@ -95,4 +109,4 @@ class Option(db.Model, SerializerMixin):
     name = db.Column(db.String(200), nullable=False)
     label = db.Column(db.String(30), nullable=False)
     item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
-    correct_answer = db.Column(db.Boolean, default=False)
+    is_correct = db.Column(db.Boolean, default=False)
