@@ -1,9 +1,18 @@
 import datetime
 from sqlalchemy_serializer import SerializerMixin
 from testingapp import db
-from .enums import Grade, NavigationMode, SubmissionMode
+from .enums import NavigationMode, SubmissionMode
 from .usermodels import subject_teacher, subject_student
 
+SectionRelationship = db.Table(
+    'sections_related',
+    db.Column('section_from', db.Integer, db.ForeignKey('sections.id')),
+    db.Column('section_to', db.Integer, db.ForeignKey('sections.id'))
+    )
+test_part = db.Table('test_part',
+                           db.Column('test_id', db.Integer, db.ForeignKey('tests.id')),
+                           db.Column('part_id', db.Integer, db.ForeignKey('parts.id'))
+                           )
 
 class Subject(db.Model, SerializerMixin):
     __tablename__ = 'subjects'
@@ -18,33 +27,38 @@ class Subject(db.Model, SerializerMixin):
     tests = db.relationship('Test', back_populates='subject')
 
 
-class OptionResult(db.Model, SerializerMixin):
-    __table__name = 'option_result'
+class ItemResult(db.Model, SerializerMixin):
+    __table__name = "item_result"
+    id = db.Column(db.Integer, primary_key=True)
+    serialize_rules = ()
 
-    serialize_rules = ('-test', '-student', '-option')
+    student = db.relationship('Student', backref='item_result')
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'))
 
-    __table_args__ = (
-        db.PrimaryKeyConstraint('student_id', 'test_id','option_id', name="primary_key_constraint"),
-    )
+    item = db.relationship('Item', backref='item_result')
+    item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
 
-    
-    # start_date = db.Column(db.DateTime, default=datetime.datetime.now)
-    # points = db.Column(db.Float, nullable=True)
-    # grade = db.Column(db.Enum(Grade), default=Grade.F)
+    is_correct = db.Column(db.Boolean(), default=False)
 
-
-    checked = db.Column(db.Boolean(), nullable=False)
-    is_correct = db.Column(db.Boolean(), nullable=False, default=False)
-
-    student = db.relationship('Student', backref='option_result')
-    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
-
-    test = db.relationship('Test', backref='option_result')
-    test_id = db.Column(db.Integer, db.ForeignKey('tests.id'), nullable=False)
-
-    option = db.relationship('Option', backref='option_result')
-    option_id = db.Column(db.Integer, db.ForeignKey('options.id'), nullable=False)
-
+#
+# class OptionResult(db.Model, SerializerMixin):
+#     __table__name = 'option_result'
+#     id = db.Column(db.Integer, primary_key=True)
+#     serialize_rules = ('-test', '-student', '-option')
+#
+#     # start_date = db.Column(db.DateTime, default=datetime.datetime.now)
+#     # points = db.Column(db.Float, nullable=True)
+#     # grade = db.Column(db.Enum(Grade), default=Grade.F)
+#     checked = db.Column(db.Boolean(), default=False)
+#
+#     student = db.relationship('Student', backref='option_result')
+#     student_id = db.Column(db.Integer, db.ForeignKey('students.id'))
+#
+#     test = db.relationship('Test', backref='option_result')
+#     test_id = db.Column(db.Integer, db.ForeignKey('tests.id'))
+#
+#     option = db.relationship('Option', backref='option_result')
+#     option_id = db.Column(db.Integer, db.ForeignKey('options.id'))
 
 
 class Test(db.Model, SerializerMixin):
@@ -59,7 +73,8 @@ class Test(db.Model, SerializerMixin):
 
     subject = db.relationship("Subject", back_populates="tests")
     subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'))
-    parts = db.relationship("Part", backref="test", lazy='dynamic')
+    parts = db.relationship("Part", secondary=test_part)
+
 
 
 class Part(db.Model, SerializerMixin):
@@ -77,17 +92,24 @@ class Part(db.Model, SerializerMixin):
     navigation_mode = db.Column(db.Enum(NavigationMode), default=NavigationMode.NON_LINEAR)
     submission_mode = db.Column(db.Enum(SubmissionMode), default=SubmissionMode.SIMULTANEOUS)
 
-    test_id = db.Column(db.Integer, db.ForeignKey('tests.id'))
     sections = db.relationship("Section", backref="part", lazy='dynamic')
+
 
 
 class Section(db.Model, SerializerMixin):
     __tablename__ = 'sections'
+    serialize_rules = ('-sections_to','-items', '-part')
+
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text())
     part_id = db.Column(db.Integer, db.ForeignKey('parts.id'))
     items = db.relationship("Item", backref="section", lazy='dynamic')
+    sections_to = db.relation(
+                    'Section',secondary=SectionRelationship,
+                    primaryjoin=SectionRelationship.c.section_from==id,
+                    secondaryjoin=SectionRelationship.c.section_to==id,
+                    backref="sections_from")
 
 
 class Item(db.Model, SerializerMixin):
@@ -111,4 +133,4 @@ class Option(db.Model, SerializerMixin):
     name = db.Column(db.String(200), nullable=False)
     label = db.Column(db.String(30), nullable=False)
     item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
-    correct_answer = db.Column(db.Boolean, default=False)
+    is_correct = db.Column(db.Boolean, default=False)

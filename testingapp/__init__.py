@@ -8,6 +8,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -36,7 +37,7 @@ from testingapp.routes.subject import subject_bp
 from testingapp.routes.section import section_bp
 from testingapp.routes.item import item_bp
 from testingapp.routes.option import option_bp
-from testingapp.routes.option_result import option_result_bp
+from testingapp.routes.itemresult import item_result_bp
 
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(test_bp, url_prefix='/api')
@@ -45,4 +46,4 @@ app.register_blueprint(section_bp, url_prefix='/api')
 app.register_blueprint(subject_bp, url_prefix='/api')
 app.register_blueprint(item_bp, url_prefix='/api')
 app.register_blueprint(option_bp, url_prefix='/api')
-app.register_blueprint(option_result_bp, url_prefix='/api')
+app.register_blueprint(item_result_bp, url_prefix='/api')

@@ -147,15 +147,13 @@ def add_test_result(test):
     for part in test.parts:
             for section in part.sections:
                 for item in section.items:
-                    for option in item.options:
-                        option_result = OptionResult(
-                                student_id=student.id,
-                                test_id=test.id,
-                                option_id=option.id,
-                                checked=fake.boolean(chance_of_getting_true=50)
-                                )
-                        db.session.add(option_result)
-                        db.session.commit()
+                    item_result = ItemResult(
+                            student_id=student.id,
+                            item_id=item.id,
+                            is_correct=fake.boolean(chance_of_getting_true=50)
+                            )
+                    db.session.add(item_result)
+                    db.session.commit()
 
 
 

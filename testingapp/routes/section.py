@@ -20,6 +20,20 @@ def create_section():
         return Response(status=400)
 
 
+@section_bp.route('/section/link', methods=['POST'])
+def link_sections():
+    try:
+        data = request.json
+        source = Section.query.get(data.get("source"))
+        target = Section.query.get(data.get("target"))
+        source.sections_to.append(target)
+        db.session.commit()
+        return Response(status=200)
+    except Exception as error:
+        print(error)
+        return Response(status=400)
+
+
 @section_bp.route('/section', methods=['GET'])
 def get_part_sections():
     data = request.json
