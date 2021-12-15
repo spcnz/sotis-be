@@ -133,7 +133,7 @@ def add_options(item_id, max_choices):
         option = Option(
             name=fake.text(max_nb_chars=10),
             label=option_names[i],
-            correct_answer=(max_choices > 0),
+            is_correct=fake.boolean(chance_of_getting_true=50),
             item_id=item_id,
             )
         db.session.add(option)

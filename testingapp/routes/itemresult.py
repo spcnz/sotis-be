@@ -1,7 +1,9 @@
 from flask import Blueprint, request, jsonify, Response
 from testingapp import db
 from testingapp.models.testmodels import Item, Option, ItemResult
+from testingapp.services.kst_services import create_knowledge_space, create_df
 from testingapp.utils.authutils import get_user_if_logged_in
+
 
 item_result_bp = Blueprint('item_result', __name__)
 
@@ -36,3 +38,13 @@ def get_item_results():
     result_id = request.args.get('result_id')
     items = ItemResult.query.filter_by(id=result_id).all()
     return jsonify([item.to_dict() for item in items])
+
+@item_result_bp.route('/item-result/generate', methods=['GET'])
+def create_ks():
+    query_set = ItemResult.query.all()
+
+    df = create_df(query_set)
+    knowledge_space = create_knowledge_space(df, version=1)
+    print(knowledge_space)
+
+    return Response(status=200)
