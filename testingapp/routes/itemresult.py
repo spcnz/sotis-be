@@ -41,7 +41,7 @@ def get_item_results():
     items = ItemResult.query.filter_by(id=result_id).all()
     return jsonify([item.to_dict() for item in items])
 
-@item_result_bp.route('/item-result/generate', methods=['GET'])
+@item_result_bp.route('/itemresult/generate', methods=['GET'])
 def create_ks():
     query_set = ItemResult.query.all()
 
@@ -49,4 +49,4 @@ def create_ks():
     knowledge_space = create_knowledge_space(df, version=1)
     print(knowledge_space)
 
-    return Response(status=200)
+    return jsonify(knowledge_space.get("implications"))
