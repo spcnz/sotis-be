@@ -64,7 +64,7 @@ class ItemResult(db.Model, SerializerMixin):
 class Test(db.Model, SerializerMixin):
     __tablename__ = 'tests'
 
-    serialize_rules = ('-parts.test', '-subject', '-option_result')
+    serialize_rules = ('-subject', '-option_result')
     
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), nullable=False)
@@ -98,7 +98,7 @@ class Part(db.Model, SerializerMixin):
 
 class Section(db.Model, SerializerMixin):
     __tablename__ = 'sections'
-    serialize_rules = ('-sections_to','-items', '-part')
+    serialize_rules = ('-sections_to', '-part', '-sections_from')
 
 
     id = db.Column(db.Integer, primary_key=True)
@@ -114,7 +114,7 @@ class Section(db.Model, SerializerMixin):
 
 class Item(db.Model, SerializerMixin):
     __tablename__ = 'items'
-    serialize_rules = ('-section', '-options.item')
+    serialize_rules = ('-section', '-options.item', '-item_result')
 
     id = db.Column(db.Integer, primary_key=True)
     score = db.Column(db.Integer, nullable=False)

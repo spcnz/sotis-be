@@ -13,7 +13,7 @@ test_bp = Blueprint('test', __name__)
 def get_all():
     subject_id = request.args.get('subject_id')
     
-    return jsonify([test.to_dict() for test in Test.query.filter_by(subject_id=subject_id)])
+    return jsonify([test.to_dict(only=('id', 'title')) for test in Test.query.filter_by(subject_id=subject_id)])
 
 
 @test_bp.route('/test', methods=['POST'])
@@ -45,4 +45,4 @@ def get_by_id(id):
         return Response(status=400)
 
     
-    return jsonify(test.to_dict(only=('parts.title','parts.id', 'title','time_dependency', 'time_limit_seconds', 'id', 'parts.submission', 'parts.navigation')))
+    return jsonify(test.to_dict())

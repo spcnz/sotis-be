@@ -69,7 +69,6 @@ def add_subjects():
 
 
 def add_tests():
-    parts = db.relationship("Part", backref="test", lazy='dynamic')
 
     for i in range(3):
         time_dependency = fake.boolean(chance_of_getting_true=50)
@@ -83,20 +82,20 @@ def add_tests():
         test.subject_id = subjects[subject_index].id
         db.session.add(test)
         db.session.commit()
-        add_parts(test.id)
+        add_parts(test)
 
     return test
         
 
-def add_parts(test_id):
+def add_parts(test):
     for i in range(3):
         part = Part(
             title=fake.text(max_nb_chars=20), 
             navigation_mode=random.choice([e.name for e in NavigationMode]),
             submission_mode=random.choice([e.name for e in SubmissionMode]),
-            test_id=test_id
             )
         db.session.add(part)
+        test.parts.append(part)
         db.session.commit()
 
         add_sections(part.id)
@@ -131,9 +130,9 @@ def add_options(item_id, max_choices):
     option_names = ['A', 'B', 'C', 'D', 'E']
     for i in range(5):
         option = Option(
-            name=fake.text(max_nb_chars=10),
-            label=option_names[i],
-            correct_answer=(max_choices > 0),
+            label=fake.text(max_nb_chars=30),
+            name=option_names[i],
+            is_correct=(max_choices > 0),
             item_id=item_id,
             )
         db.session.add(option)
