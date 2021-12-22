@@ -5,12 +5,12 @@ import pandas as pd
 def create_df(query_set):
     student_ids = {result.student_id for result in query_set}
     item_ids = {result.item_id for result in query_set}
-    df_dict = {item_id: [] for item_id in item_ids}
+    df_dict = {student_id: [] for student_id in student_ids}
 
     for student in student_ids:
         for item in item_ids:
             is_correct_answer = get_answer(query_set, student, item)
-            df_dict[item].append(is_correct_answer)
+            df_dict[student].append(is_correct_answer)
 
     print(df_dict)
     return pd.DataFrame(df_dict)
