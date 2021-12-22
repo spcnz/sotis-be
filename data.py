@@ -142,17 +142,18 @@ def add_options(item_id, max_choices):
 #add test result for one test 
 def add_test_result(test):
     subject = test.subject
-    student = subject.students[0]
-    for part in test.parts:
-            for section in part.sections:
-                for item in section.items:
-                    item_result = ItemResult(
-                            student_id=student.id,
-                            item_id=item.id,
-                            is_correct=fake.boolean(chance_of_getting_true=50)
-                            )
-                    db.session.add(item_result)
-                    db.session.commit()
+    students = subject.students[:5]
+    for student in students:
+        for part in test.parts:
+                for section in part.sections:
+                    for item in section.items:
+                        item_result = ItemResult(
+                                student_id=student.id,
+                                item_id=item.id,
+                                is_correct=fake.boolean(chance_of_getting_true=50)
+                                )
+                        db.session.add(item_result)
+                        db.session.commit()
 
 
 
