@@ -55,5 +55,5 @@ def create_ks():
 
         save_kspace(knowledge_space, list(keys),domain_id = 1)
         kspace = KnowledgeSpace.query.filter_by(domain_id=1)
-
+    # add_full(1)
     return jsonify([node.to_dict(only=("id", "target_problems", "problem")) for node in kspace])

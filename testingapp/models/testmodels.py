@@ -18,8 +18,8 @@ class Subject(db.Model, SerializerMixin):
     name = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text())
     points = db.Column(db.Integer)
-    # teachers = db.relationship("Teacher", secondary=subject_teacher)
-    # students = db.relationship("Student", secondary=subject_student)
+    teachers = db.relationship("Teacher", secondary=subject_teacher)
+    students = db.relationship("Student", secondary=subject_student)
     tests = db.relationship('Test', back_populates='subject')
 
 
