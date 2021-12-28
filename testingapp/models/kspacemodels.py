@@ -9,12 +9,21 @@ ProblemRelationship = db.Table(
     db.Column('target', db.Integer, db.ForeignKey('kspaces.id'))
     )
 
+#Many to many relationship between section and kspace model
+section_kspace = db.Table('section_kspace',
+                           db.Column('section_id', db.Integer, db.ForeignKey('sections.id')),
+                           db.Column('kspace_id', db.Integer, db.ForeignKey('kspaces.id'))
+                           )
+
 class KnowledgeSpace(db.Model, SerializerMixin):
     __tablename__ = 'kspaces'
 
+    serialize_rules = ('-source_problems',)
+
+
     id = db.Column(db.Integer, primary_key=True)
-    domen_id = db.Column(db.Integer, db.ForeignKey('parts.id'))
-    problem = db.Column(db.Integer, db.ForeignKey('sections.id'))
+    domain_id = db.Column(db.Integer, db.ForeignKey('parts.id'))
+    problem = db.relationship("Section", secondary=section_kspace)
     probability = db.Column(db.Float, nullable=True)
     iita_generated = db.Column(db.Boolean, default=False)
 
