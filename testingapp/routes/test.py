@@ -2,8 +2,10 @@ from flask import Blueprint, request, jsonify, Response
 from testingapp import db
 from testingapp.models.testmodels import Test, Subject
 from testingapp.models.usermodels import User
+from testingapp.models.kspacemodels import KnowledgeSpace
 from testingapp.utils.authutils import get_user_if_logged_in
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from testingapp.services.kspace_service import init_probs
 
 test_bp = Blueprint('test', __name__)
 
@@ -44,5 +46,15 @@ def get_by_id(id):
     if not test:
         return Response(status=400)
 
-    
+
     return jsonify(test.to_dict())
+
+@test_bp.route('/test/<id>/guided', methods=['GET'])
+def start_test(id):
+    test = Test.query.get(id)
+    if not test:
+        return Response(status=400)
+    #set a priori probability
+    kspace = init_probs(test)
+    #vrati prvo pitanje (?)
+    return jsonify([])

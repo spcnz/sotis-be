@@ -12,8 +12,6 @@ def create_df(sections_qs, results_qs):
             is_correct_answer = get_answer(results_qs, student, section)
             df_dict[section].append(is_correct_answer)
 
-    print(pd.DataFrame(df_dict))
-
     return (section_ids, pd.DataFrame(df_dict))
 
 
