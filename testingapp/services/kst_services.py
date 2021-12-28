@@ -2,30 +2,34 @@ from .kst import iita
 import pandas as pd
 
 
-def create_df(query_set):
-    student_ids = {result.student_id for result in query_set}
-    item_ids = {result.item_id for result in query_set}
-    df_dict = {item_id: [] for item_id in item_ids}
+def create_df(sections_qs, results_qs):
+    student_ids = {result.student_id for result in results_qs}
+    section_ids = {section.id for section in sections_qs}
+    df_dict = {section_id: [] for section_id in section_ids}
 
-    for item in item_ids:
+    for section in section_ids:
         for student in student_ids:
-            is_correct_answer = get_answer(query_set, student, item)
-            df_dict[item].append(is_correct_answer)
+            is_correct_answer = get_answer(results_qs, student, section)
+            df_dict[section].append(is_correct_answer)
 
     print(pd.DataFrame(df_dict))
 
-    return (item_ids, pd.DataFrame(df_dict))
+    return (section_ids, pd.DataFrame(df_dict))
 
 
 def create_knowledge_space(df, version):
     return iita(df, version)
 
 
-def get_answer(query_set, student_id, item_id):
-    item_result = None
+def get_answer(results_qs, student_id, section_id):
+    section_results = 0
+    items_count = 0
 
-    for result in query_set:
-        if result.student_id == student_id and result.item_id == item_id:
-            item_result = result
+    for result in results_qs:
+        if result.student_id == student_id and result.item.section.id == section_id:
+            section_results += int(result.is_correct)
+            items_count += 1
+    result = section_results / (items_count or 1)
 
-    return int(item_result.is_correct) if item_result is not None else 0
+    return int(result > 0.5)
+
