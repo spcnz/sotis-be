@@ -11,8 +11,8 @@ students = []
 subjects = []
 
 
-db.drop_all()
-db.create_all()
+# db.drop_all()
+# db.create_all()
 
 
 def add_admin():
@@ -140,17 +140,21 @@ def add_options(item_id, max_choices):
         max_choices = max_choices - 1
 
 #add test result for one test 
-def add_test_result(test):
+def add_test_result():
+    test = Test.query.get(1)
     subject = test.subject
-    students = subject.students[:5]
-    for student in students:
+    student1 = subject.students[0]
+    student2 = subject.students[1]
+    student3 = subject.students[2]
+
+    for student in [student1, student2, student3]:
         for part in test.parts:
                 for section in part.sections:
                     for item in section.items:
                         item_result = ItemResult(
                                 student_id=student.id,
                                 item_id=item.id,
-                                is_correct=fake.boolean(chance_of_getting_true=50)
+                                is_correct=fake.boolean(chance_of_getting_true=60)
                                 )
                         db.session.add(item_result)
                         db.session.commit()
@@ -158,15 +162,15 @@ def add_test_result(test):
 
 
 if __name__ == '__main__':
-    add_admin()
-    print("\nADDED ADMIN....\n")
-    add_teachers()
-    print("\nADDED TEACHERS....\n")
-    add_students()
-    print("\nADDED STUDENTS....\n")
-    add_subjects()
-    print("\nADDED SUBJECTS....")
-    test = add_tests()
-    print("\nADDED TESTS....\n")
-    add_test_result(test)
+    # add_admin()
+    # print("\nADDED ADMIN....\n")
+    # add_teachers()
+    # print("\nADDED TEACHERS....\n")
+    # add_students()
+    # print("\nADDED STUDENTS....\n")
+    # add_subjects()
+    # print("\nADDED SUBJECTS....")
+    # test = add_tests()
+    # print("\nADDED TESTS....\n")
+    add_test_result()
     print("\nADDED TEST RESULTS....\n")
