@@ -4,11 +4,7 @@ from testingapp import db
 from .enums import NavigationMode, SubmissionMode
 from .usermodels import subject_teacher, subject_student
 
-SectionRelationship = db.Table(
-    'sections_related',
-    db.Column('section_from', db.Integer, db.ForeignKey('sections.id')),
-    db.Column('section_to', db.Integer, db.ForeignKey('sections.id'))
-    )
+
 test_part = db.Table('test_part',
                            db.Column('test_id', db.Integer, db.ForeignKey('tests.id')),
                            db.Column('part_id', db.Integer, db.ForeignKey('parts.id'))
@@ -84,12 +80,6 @@ class Section(db.Model, SerializerMixin):
     title = db.Column(db.Text())
     part_id = db.Column(db.Integer, db.ForeignKey('parts.id'))
     items = db.relationship("Item", backref="section", lazy='dynamic')
-    sections_to = db.relation(
-                    'Section',secondary=SectionRelationship,
-                    primaryjoin=SectionRelationship.c.section_from==id,
-                    secondaryjoin=SectionRelationship.c.section_to==id,
-                    backref="sections_from")
-
 
 class Item(db.Model, SerializerMixin):
     __tablename__ = 'items'

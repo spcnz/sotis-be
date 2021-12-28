@@ -1,0 +1,28 @@
+import datetime
+from sqlalchemy_serializer import SerializerMixin
+from testingapp import db
+from .testmodels import Section
+
+ProblemRelationship = db.Table(
+    'problems_related',
+    db.Column('source', db.Integer, db.ForeignKey('kspaces.id')),
+    db.Column('target', db.Integer, db.ForeignKey('kspaces.id'))
+    )
+
+class KnowledgeSpace(db.Model, SerializerMixin):
+    __tablename__ = 'kspaces'
+
+    id = db.Column(db.Integer, primary_key=True)
+    domen_id = db.Column(db.Integer, db.ForeignKey('parts.id'))
+    problem = db.Column(db.Integer, db.ForeignKey('sections.id'))
+    probability = db.Column(db.Float, nullable=True)
+    iita_generated = db.Column(db.Boolean, default=False)
+
+    #this node is pointing to target_problems
+    #source_problems are pointing to this node
+    target_problems = db.relation(
+                    'KnowledgeSpace',secondary=ProblemRelationship,
+                    primaryjoin=ProblemRelationship.c.source==id,
+                    secondaryjoin=ProblemRelationship.c.target==id,
+                    backref="source_problems",
+                    cascade="all, delete")
