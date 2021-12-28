@@ -46,6 +46,7 @@ def create_ks():
     query_set = ItemResult.query.all()
 
     df = create_df(query_set)
+    print(df)
     knowledge_space = create_knowledge_space(df, version=1)
     print(knowledge_space)
 
