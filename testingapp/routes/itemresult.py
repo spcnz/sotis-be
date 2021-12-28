@@ -45,8 +45,10 @@ def get_item_results():
 def create_ks():
     query_set = ItemResult.query.all()
 
-    df = create_df(query_set)
+    keys, df = create_df(query_set)
     knowledge_space = create_knowledge_space(df, version=1)
-    print(knowledge_space)
 
-    return jsonify(knowledge_space.get("implications"))
+    return jsonify({
+        "keys": list(keys), 
+        "implications": knowledge_space.get("implications"),
+        "probs": list(knowledge_space.get("diff"))})

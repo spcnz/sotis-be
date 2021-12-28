@@ -40,31 +40,10 @@ class ItemResult(db.Model, SerializerMixin):
 
     is_correct = db.Column(db.Boolean(), default=False)
 
-#
-# class OptionResult(db.Model, SerializerMixin):
-#     __table__name = 'option_result'
-#     id = db.Column(db.Integer, primary_key=True)
-#     serialize_rules = ('-test', '-student', '-option')
-#
-#     # start_date = db.Column(db.DateTime, default=datetime.datetime.now)
-#     # points = db.Column(db.Float, nullable=True)
-#     # grade = db.Column(db.Enum(Grade), default=Grade.F)
-#     checked = db.Column(db.Boolean(), default=False)
-#
-#     student = db.relationship('Student', backref='option_result')
-#     student_id = db.Column(db.Integer, db.ForeignKey('students.id'))
-#
-#     test = db.relationship('Test', backref='option_result')
-#     test_id = db.Column(db.Integer, db.ForeignKey('tests.id'))
-#
-#     option = db.relationship('Option', backref='option_result')
-#     option_id = db.Column(db.Integer, db.ForeignKey('options.id'))
-
-
 class Test(db.Model, SerializerMixin):
     __tablename__ = 'tests'
 
-    serialize_rules = ('-subject', '-option_result')
+    serialize_rules = ('-subject', '-item_result')
     
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), nullable=False)
