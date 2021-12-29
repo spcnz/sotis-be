@@ -58,7 +58,7 @@ def save_kspace(iita_kspace, section_ids, domain_id):
     
     db.session.commit()
     add_empty(domain_id)
-    # add_full(domain_id)
+    add_full(domain_id)
 
 def connect_nodes(implications, nodes, equals):
     """
@@ -254,56 +254,49 @@ def add_empty(domain_id=1):
     db.session.add(empty_kspace)
     db.session.commit()
 
-# def add_full(domain_id=1):
-#     """
-#     add_full adds new KnowledgeSpace object to db, representing full state
-#     Full state can be achieved from any combination of KnowledgeSpace objects that gives full list of problems
-#     Full list of problems is the same as all sections for given part (=domain_id)
+def add_full(domain_id=1):
+    """
+    add_full adds new KnowledgeSpace object to db, representing full state
+    Full state can be achieved by connecting leaf nodes
+    Node is called leaf when it doesn't have any child nodes - its target_problems property is empty list []
+    If there is node with all sections covered no new node will be added
 
-#     :param domain_id: domain id, id of part representing domain
-#     :return: /
-#     """ 
-#     kspace_list = KnowledgeSpace.query.filter_by(domain_id=domain_id)
-#     sections = Section.query.filter_by(part_id=domain_id)
-#     full_kspace = KnowledgeSpace(
-#                 domain_id=domain_id,
-#                 iita_generated=True,
-#                 problem=list(sections)
-#                 )
-#     for sec in sections:
-#         print(sec)
+    :param domain_id: domain id, id of part representing domain
+    :return: /
+    """ 
+    sections = Section.query.filter_by(part_id=domain_id)
+    full_kspace = KnowledgeSpace(
+                domain_id=domain_id,
+                iita_generated=True,
+                problem=list(sections)
+                )
+    kspace_list = KnowledgeSpace.query.filter_by(domain_id=domain_id)
 
-#     for size in range(0, kspace_list.count()):
-#         for subset in itertools.combinations(kspace_list, size):
-#             result = set([])
-#             print("=================")
-#             for kspace in subset:
-#                 # print(set(kspace.problem))
-#                 result = result.union(set(kspace.problem))
-#                 print()
-#                 if len(kspace.problem)> 0 and kspace.problem[0].id == 1:
-#                     print("Sekcije u stanju : ", kspace.problem)
-#                     print(sections_in_state(kspace))
-#                     print()
-#                     print()
-#             if len(result) == sections.count():
-#                 pass
-#                 # print("Ova kombinacija daje sve sekcije: ", )
-#                 # print(subset)
-#                 # for kspace in subset:
-#                 #     full_kspace.source_problems.append(kspace)
-#     # db.session.add(full_kspace)
-#     # db.session.commit()            
+    leafs = []
+    for state in kspace_list:
+        sections_known = sections_in_state(state)
+        if len(sections_known) == sections.count():
+            return
+        if len(state.target_problems) == 0:
+            leafs.append(kspace)
 
+    full_kspace.source_problems = leafs
+    db.session.add(full_kspace)
+    db.session.commit()
+    
 
-
-# def sections_in_state(state):
-#     #is root
-#     if len(state.source_problems) == 0:
-#         return state.problem
-#     else:
-#         result = state.problem
-#         for parent in state.source_problems:
-#             result += sections_in_state(parent)
-#         return result
+def sections_in_state(state):
+    """
+    sections_in_state defines which sections subject knows if he is in state state
+   
+    :param state: KnowledgeSpace object representing current state
+    :return: set of unique Section objects representing information subject knows being in that state
+    """ 
+    if len(state.source_problems) == 0:
+        return set(state.problem)
+    else:
+        result = set(state.problem[:])
+        for parent in state.source_problems:
+            result = result.union(sections_in_state(parent))
+        return result
         
