@@ -294,9 +294,8 @@ def sections_in_state(state):
     """ 
     if len(state.source_problems) == 0:
         return set(state.problem)
-    else:
+    else:                                   
         result = set(state.problem[:])
         for parent in state.source_problems:
             result = result.union(sections_in_state(parent))
         return result
-        

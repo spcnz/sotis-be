@@ -14,7 +14,6 @@ section_kspace = db.Table('section_kspace',
                            db.Column('section_id', db.Integer, db.ForeignKey('sections.id')),
                            db.Column('kspace_id', db.Integer, db.ForeignKey('kspaces.id'))
                            )
-
 class KnowledgeSpace(db.Model, SerializerMixin):
     __tablename__ = 'kspaces'
 
