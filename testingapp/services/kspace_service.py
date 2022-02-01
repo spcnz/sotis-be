@@ -2,6 +2,28 @@ from testingapp.models.kspacemodels import KnowledgeSpace
 from testingapp.models.testmodels import Section
 from testingapp import db
 import itertools
+import numpy as np
+from scipy.spatial import distance
+
+
+def get_graph_vectorized(domain_id):
+    all_states = KnowledgeSpace.query.filter(domain_id=domain_id, iita_generated=True).order_by(KnowledgeSpace.id)
+    num_nodes = len(all_states)
+    graph_vector = np.zeros((1, num_nodes**2))
+
+    for i, state in enumerate(all_states):
+        for target_state in state.target_problems:
+            graph_vector[(i + 1) * target_state.id] = 1
+
+    return graph_vector
+
+
+def calc_graph_distance(graph_a_domain, graph_b_domain):
+    graph_a_vec = get_graph_vectorized(graph_a_domain)
+    graph_b_vec = get_graph_vectorized(graph_b_domain)
+
+    return distance.hamming(graph_a_vec, graph_b_vec)
+
 
 def save_kspace(iita_kspace, section_ids, domain_id):
     """
@@ -299,3 +321,6 @@ def sections_in_state(state):
         for parent in state.source_problems:
             result = result.union(sections_in_state(parent))
         return result
+
+
+

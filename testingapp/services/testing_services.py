@@ -7,10 +7,10 @@ from testingapp.models.kspacemodels import KnowledgeSpace
 
 def get_next_question(domain_id):
     best_state = questioning_rule(domain_id)
-    possible_questions = best_state.problem.items
+    possible_questions = [section.items for section in best_state.problem]
     index = randrange(len(possible_questions))
 
-    return possible_questions[index]
+    return possible_questions[index] if possible_questions[index].target_problems is not None else None
 
 
 def questioning_rule(domain_id):
@@ -36,5 +36,5 @@ def calculate_likelihood(current_state, item_result):
     item = item_result.item
     r = item_result.is_correct
 
-    ni = 1.2 if item.section.id in current_state.problem == r else 1
+    ni = 1.2 if item.section.id in [problem.id for problem in current_state.problem] == r else 1
     return ni * current_state.probability
