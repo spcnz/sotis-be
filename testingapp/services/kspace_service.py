@@ -300,7 +300,7 @@ def add_full(domain_id=1):
         if len(sections_known) == sections.count():
             return
         if len(state.target_problems) == 0:
-            leafs.append(kspace)
+            leafs.append(state)
 
     full_kspace.source_problems = leafs
     db.session.add(full_kspace)
