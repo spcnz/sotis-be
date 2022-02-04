@@ -7,14 +7,15 @@ from scipy.spatial import distance
 
 
 def get_graph_vectorized(domain_id):
-    all_states = KnowledgeSpace.query.filter(domain_id=domain_id, iita_generated=True).order_by(KnowledgeSpace.id)
+    all_states = KnowledgeSpace.query.filter_by(domain_id=domain_id, iita_generated=True).order_by(KnowledgeSpace.id)
     num_nodes = len(all_states)
-    graph_vector = np.zeros((1, num_nodes**2))
+    graph_vector = np.zeros((1, num_nodes ** 2))
 
     for i, state in enumerate(all_states):
         for target_state in state.target_problems:
             graph_vector[(i + 1) * target_state.id] = 1
 
+    print(graph_vector)
     return graph_vector
 
 
@@ -26,7 +27,7 @@ def calc_graph_distance(graph_a_domain, graph_b_domain):
 
 
 def save_kspace(iita_kspace, section_ids, domain_id):
-    """
+    """df
     save_kspace creates object of class KnowledgeSpace and store them to db
     If two sections are equivalent only one KnowledgeSpace object is created, its property problem contains id from both equivalent sections.
     In case that section_id has eqivalent ids:
@@ -39,7 +40,7 @@ def save_kspace(iita_kspace, section_ids, domain_id):
     :param section_ids: array of section ids (Section class), each section represent one problem in domain
     :param domain_id: id of domain (object of class Part)
     :return: /
-    """ 
+    """
     nodes = {}
 
     implications = transform_implications(iita_kspace.get("implications"), section_ids)
@@ -47,7 +48,7 @@ def save_kspace(iita_kspace, section_ids, domain_id):
     print("Implications od iite: ", implications)
 
     implications = remove_duplicate(implications, equals)
-    print("Nakon zamene duplikata : ",implications)
+    print("Nakon zamene duplikata : ", implications)
     print('Ekvivalentni kljucevi:  ', equals)
 
     for section_id in section_ids:
@@ -68,7 +69,7 @@ def save_kspace(iita_kspace, section_ids, domain_id):
             kspace = KnowledgeSpace(
                 domain_id=domain_id,
                 iita_generated=True,
-                )
+            )
             kspace.problem.append(section)
             nodes[section_id] = kspace
 
@@ -77,10 +78,12 @@ def save_kspace(iita_kspace, section_ids, domain_id):
 
     for node in nodes:
         db.session.add(node)
-    
+
+    init_probs_by_domain(domain_id)
     db.session.commit()
     add_empty(domain_id)
     add_full(domain_id)
+
 
 def connect_nodes(implications, nodes, equals):
     """
@@ -89,8 +92,8 @@ def connect_nodes(implications, nodes, equals):
     
     :param nodes: array of KnowledgeSpace objects
     :return: array of KnowledgeSpace objects with defined properties target_problems
-    """ 
-    for source,target in implications:
+    """
+    for source, target in implications:
         if equivalent(equals, source, target):
             continue
         source_node = nodes[source]
@@ -109,12 +112,13 @@ def transform_implications(implications, section_ids):
             keys in this array are ids from dataframe created (ordinal number of column starting at 0)
     :return: array of 2-tuple, each tuple represent two ids that are connected, 
             keys in this array are section ids
-    """ 
+    """
     transformed = []
     for source, target in implications:
         transformed.append((section_ids[source], section_ids[target]))
 
     return transformed
+
 
 def remove_duplicate(implications, equals):
     """
@@ -127,7 +131,7 @@ def remove_duplicate(implications, equals):
     :param equals: array of tuples, each tuple represent ids that are equivalent among themselves
 
     :return: array, transformed implications withoud any duplicate
-    """ 
+    """
     transformed = []
     for source, target in implications:
         if is_duplicate(equals, source):
@@ -148,13 +152,13 @@ def find_equal_nodes(implications):
 
     :param implications: array of 2-tuple, each tuple represent two ids that are equivalent among themselves
     :return: array of n-tuple, each tuple represent n ids that are equivalent among themselves, or [] if there is no equivalent ids
-    """ 
+    """
     equals = []
 
-    #za svaki node cuva na kom indeksu je dodat u niz equals
-    #ako se pronadje duplikat, proverava se da li source ili target vec postoje u nizu equals
-    #ako ne postoje samo se doda tuple (source, target) u equals i zabelezi mesto na kom su dodati u niz
-    #ako postoji onda se iz added dict uzima na kom mestu je dodat i dodaje se u postojeci tuple
+    # za svaki node cuva na kom indeksu je dodat u niz equals
+    # ako se pronadje duplikat, proverava se da li source ili target vec postoje u nizu equals
+    # ako ne postoje samo se doda tuple (source, target) u equals i zabelezi mesto na kom su dodati u niz
+    # ako postoji onda se iz added dict uzima na kom mestu je dodat i dodaje se u postojeci tuple
     added = {}
     for i in range(0, len(implications)):
         source, target = implications[i]
@@ -171,11 +175,12 @@ def find_equal_nodes(implications):
                     added[source] = index
                 else:
                     equals.append((source, target))
-                    #sacuvaj indeks na kom je dodat u niz equals
+                    # sacuvaj indeks na kom je dodat u niz equals
                     added[source] = len(equals) - 1
                     added[target] = len(equals) - 1
-        
+
     return equals
+
 
 def is_duplicate(equals, id):
     """
@@ -184,11 +189,12 @@ def is_duplicate(equals, id):
     :param equals: array of tuples, each tuple represent ids that are equivalent among themselves
     :param id: id to be found in equals
     :return: True if id has equivalent ids, False otherwise
-    """ 
+    """
     for tuple in equals:
         if id in tuple:
             return True
     return False
+
 
 def init_probs(test):
     """
@@ -198,17 +204,23 @@ def init_probs(test):
 
     :param test: Test object
     :return: list of KnowledgeSpace objects with initialized property probability if test param is defined, None otherwise
-    """ 
+    """
     if not test:
         return None
     kspace = []
     for part in test.parts:
-        nodes = KnowledgeSpace.query.filter_by(domain_id=part.id, iita_generated=True)
-        for node in nodes:
-            node.probability = (1.0) / nodes.count()
+        init_probs_by_domain(part.id)
     db.session.commit()
 
     return kspace
+
+
+def init_probs_by_domain(domain_id):
+    nodes = KnowledgeSpace.query.filter_by(domain_id=domain_id, iita_generated=True)
+    for node in nodes:
+        node.probability = 1.0 / nodes.count()
+    db.session.commit()
+
 
 def exist_eq_node(nodes, section_id):
     """
@@ -218,12 +230,13 @@ def exist_eq_node(nodes, section_id):
     :param nodes: array of KnowledgeSpace objects
     :param section_id: id to be found in node's problem field
     :return: node object if exist, None otherwise
-    """ 
+    """
     for node in nodes:
         for section in node.problem:
             if section_id == section.id:
                 return node
     return None
+
 
 def get_eq_list(equals, id):
     """
@@ -232,11 +245,12 @@ def get_eq_list(equals, id):
     :param equals: array of tuples, each tuple represent ids that are equivalent among themselves
     :param id: id to be found in equals
     :return: tuple of ids that are equivalent to given id, *with* given id or [] if there is no equivalent ids
-    """ 
+    """
     for ids_tuple in equals:
         if id in ids_tuple:
             return ids_tuple
     return []
+
 
 def equivalent(equals, key1, key2):
     """
@@ -247,7 +261,7 @@ def equivalent(equals, key1, key2):
     :param key1: id to be found in equals
     :param key2: id to be found in equals
     :return: True if keys are equivalent, False otherwise
-    """ 
+    """
     return key1 in get_eq_list(equals, key2)
 
 
@@ -260,21 +274,22 @@ def add_empty(domain_id=1):
 
     :param domain_id: domain id, id of part representing domain
     :return: /
-    """ 
+    """
     all = KnowledgeSpace.query.filter_by(domain_id=domain_id)
     roots = []
     for kspace in all:
         if len(kspace.source_problems) == 0:
             roots.append(kspace)
     empty_kspace = KnowledgeSpace(
-                domain_id=domain_id,
-                iita_generated=True,
-                problem=[]
-                )
+        domain_id=domain_id,
+        iita_generated=True,
+        problem=[]
+    )
     empty_kspace.target_problems = roots
 
     db.session.add(empty_kspace)
     db.session.commit()
+
 
 def add_full(domain_id=1):
     """
@@ -285,13 +300,13 @@ def add_full(domain_id=1):
 
     :param domain_id: domain id, id of part representing domain
     :return: /
-    """ 
+    """
     sections = Section.query.filter_by(part_id=domain_id)
     full_kspace = KnowledgeSpace(
-                domain_id=domain_id,
-                iita_generated=True,
-                problem=list(sections)
-                )
+        domain_id=domain_id,
+        iita_generated=True,
+        problem=list(sections)
+    )
     kspace_list = KnowledgeSpace.query.filter_by(domain_id=domain_id)
 
     leafs = []
@@ -305,7 +320,7 @@ def add_full(domain_id=1):
     full_kspace.source_problems = leafs
     db.session.add(full_kspace)
     db.session.commit()
-    
+
 
 def sections_in_state(state):
     """
@@ -313,14 +328,11 @@ def sections_in_state(state):
    
     :param state: KnowledgeSpace object representing current state
     :return: set of unique Section objects representing information subject knows being in that state
-    """ 
+    """
     if len(state.source_problems) == 0:
         return set(state.problem)
-    else:                                   
+    else:
         result = set(state.problem[:])
         for parent in state.source_problems:
             result = result.union(sections_in_state(parent))
         return result
-
-
-

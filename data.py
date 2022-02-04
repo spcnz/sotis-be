@@ -4,6 +4,10 @@ from testingapp.models.testmodels import *
 from testingapp.models.enums import *
 import random
 
+db.drop_all()
+
+
+
 fake = Faker()
 emails = [fake.unique.email() for i in range(50)]
 emails.insert(0, 'prof@gmail.com')
@@ -12,8 +16,8 @@ teachers = []
 students = []
 subjects = []
 
-
 db.drop_all()
+
 db.create_all()
 
 
