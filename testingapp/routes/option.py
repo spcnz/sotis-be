@@ -13,9 +13,8 @@ def create_option():
         label = data.get('label')
         item_id = data.get('item_id')
         correct_answer = data.get('correct_answer')
-        checked = data.get('checked', False)
 
-        new_option = Option(item_id=item_id, name=name, label=label, correct_answer=correct_answer, checked=checked)
+        new_option = Option(item_id=item_id, name=name, label=label, is_correct=correct_answer)
         db.session.add(new_option)
         db.session.commit()
         return jsonify(new_option.to_dict())

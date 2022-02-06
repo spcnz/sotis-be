@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, Response, send_file
 from testingapp import db
-from testingapp.models.testmodels import Test, Subject
+from testingapp.models.testmodels import Test, Subject, Part
 from testingapp.models.usermodels import User
 from testingapp.models.kspacemodels import KnowledgeSpace
 from testingapp.utils.authutils import get_user_if_logged_in
@@ -152,4 +152,23 @@ def generate_item_xml(item, test_id):
             f"href=\"test-{test_id}-item-{item.id}.xml\" />")
 
 
+@test_bp.route('/test/<id>/part', methods=['POST'])
+def add_part_to_test(id):
+    data = request.json
+    part_id = data.get("part")
+    test = Test.query.get(id)
+    part = Part.query.get(part_id)
+    if test and part:
+        test.parts.append(part)
+        db.session.commit()
 
+    return jsonify(part.to_dict())
+
+
+@test_bp.route('/test/<id>/parts', methods=['GET'])
+def get_test_parts(id):
+    test = Test.query.get(id)
+    if not test:
+         return Response(status=400)
+    
+    return jsonify([part.to_dict() for part in test.parts])

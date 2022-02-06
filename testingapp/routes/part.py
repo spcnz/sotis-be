@@ -23,32 +23,9 @@ def create_part():
     db.session.commit()
     return jsonify(new_part.to_dict())
 
-
 @part_bp.route('/part', methods=['GET'])
-def get_test_parts():
+def get_all_parts():
     data = request.json
-    test_id = request.args.get('test_id')
-    parts = Part.query.filter_by(test_id = test_id).all()
+    parts = Part.query.all()
 
     return jsonify([part.to_dict() for part in parts])
-
-# @part_bp.route('/part/submit', methods=['POST'])
-# @jwt_required
-# def submit_responses():
-#     try:
-#         data = request.json
-#         responses = data.get('responses')
-#         user = get_user_if_logged_in()
-#         for response in responses:
-#             checked = response.get('checked')
-#             test_id = response.get('test_id')
-#             option_id = response.get('option_id')
-#             result = OptionResult(checked=checked, test_id=test_id, option_id=option_id, student_id=user.id)
-#             db.session.merge(result)
-
-        
-#         db.session.commit()
-#         return Response(status=200)
-#     except Exception as error:
-#         print(error)
-#         return Response(status=400)

@@ -54,7 +54,7 @@ class Test(db.Model, SerializerMixin):
 
 class Part(db.Model, SerializerMixin):
     __tablename__ = 'parts'
-    serialize_rules = ('-sections.part', '-test')
+    serialize_rules = ('-sections.part', '-test', 'submission', 'navigation')
 
     def submission(self):
         return self.submission_mode.name
