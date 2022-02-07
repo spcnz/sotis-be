@@ -82,21 +82,14 @@ def create_ks():
 
     return jsonify([node.to_dict(only=("id", "target_problems", "problem")) for node in kspace])
 
+@item_result_bp.route('/itemresult/compare', methods=['GET'])
+def compare_ks():
+    kspace = KnowledgeSpace.query.filter_by(domain_id=1)
 
-@item_result_bp.route('/itemresult/answer', methods=['GET'])
-def anwser_get_next():
-    try:
-        #data = request.json
-        #domain_id = data.get('part_id')
-        domain_id = 1
-        question = get_next_question(domain_id)
-        print("VRACAM TI OVO ", question)
+    for node in kspace:
+        print(node.problem, node.target_problems)
 
 
-        return jsonify(question.to_dict())
-    except Exception as error:
-        print(error)
-        return Response(status=400)
-
+    return jsonify([node.to_dict(only=("id", "target_problems", "problem")) for node in kspace])
 
 

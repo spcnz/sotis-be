@@ -3,6 +3,7 @@ from testingapp import db
 from testingapp.models.testmodels import Test, Subject, Part
 from testingapp.models.usermodels import User
 from testingapp.models.kspacemodels import KnowledgeSpace
+from testingapp.services.testing_services import get_next_question
 from testingapp.utils.authutils import get_user_if_logged_in
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from testingapp.services.kspace_service import init_probs
@@ -58,6 +59,8 @@ def start_test(id):
         return Response(status=400)
     #set a priori probability
     kspace = init_probs(test)
+    question = get_next_question(test.parts[0])
+
     #vrati prvo pitanje (?)
     return jsonify([])
 
