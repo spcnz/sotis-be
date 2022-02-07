@@ -22,9 +22,8 @@ def create_item_result():
 
         #user_id = 5
 
-
         data = request.json
-        responses = data.get("reponses")
+        responses = data.get("responses")
         new_result = []
 
         for item_response in responses:
@@ -34,13 +33,13 @@ def create_item_result():
                 is_correct = False if option_obj.is_correct != bool(option["checked"]) else is_correct
 
             item_id = item_response.get('item_id')
-            new_result.append(ItemResult(is_correct=is_correct, student_id=user_id, item_id=item_id))
-
-            db.session.add(new_result)
+            item_res = ItemResult(is_correct=is_correct, student_id=user_id, item_id=item_id)
+            new_result.append(item_res)
+            db.session.add(item_res)
             db.session.commit()
 
-        section_id = Item.query.filter_by(id=item_id).section_id
-        domain_id = Section.query.filter_by(id=section_id).part_id
+        section_id = Item.query.get(item_id).section_id
+        domain_id = Section.query.get(section_id).part_id
         update_rule(domain_id, new_result[-1])
         question = get_next_question(domain_id)
         print("VRACAM TI OVO ", question)

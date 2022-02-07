@@ -7,6 +7,7 @@ from testingapp.services.testing_services import get_next_question
 from testingapp.utils.authutils import get_user_if_logged_in
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from testingapp.services.kspace_service import init_probs
+from testingapp.services.testing_services import get_next_question
 import zipfile
 import os
 
@@ -51,6 +52,17 @@ def get_by_id(id):
 
 
     return jsonify(test.to_dict())
+
+@test_bp.route('/test/<id>/start', methods=['GET'])
+@jwt_required
+def get_first_question(id):
+    test = Test.query.get(id)
+    if not test:
+        return Response(status=400)
+        
+    kspace = init_probs(test)
+    question = get_next_question(test.parts[0].id)
+    return jsonify(question.to_dict())
 
 @test_bp.route('/test/<id>/guided', methods=['GET'])
 def start_test(id):
