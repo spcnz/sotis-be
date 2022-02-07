@@ -14,13 +14,13 @@ item_result_bp = Blueprint('itemresult', __name__)
 def create_item_result():
     try:
 
-        # TODO: ovo se mora vratit posle, samo test sad
-        # user = get_user_if_logged_in()
-        # if not user:  # or user.role != 'student':
-        #     return Response(status=400)
-        #user_id = user.id
+        #TODO: ovo se mora vratit posle, samo test sad
+        user = get_user_if_logged_in()
+        if not user:  # or user.role != 'student':
+            return Response(status=400)
+        user_id = user.id
 
-        user_id = 5
+        #user_id = 5
 
 
         data = request.json
