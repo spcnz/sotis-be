@@ -46,9 +46,10 @@ def update_rule(domain_id, item_result):
 
 def calculate_likelihood(current_state, item_result):
     item = item_result.item
-    print("Pristupio itemu iz item_resulta ", item)
 
-    r = item_result.is_correct
+    r = bool(item_result.is_correct)
 
-    ni = 1.2 if item.section.id in [problem.id for problem in current_state.problem] == r else 1
+    ni = 1.2 if (item.section.id in [problem.id for problem in current_state.problem]) == r else 1
+    print(ni, ' je ni')
+
     return ni * current_state.probability

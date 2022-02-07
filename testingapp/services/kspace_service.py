@@ -3,11 +3,11 @@ from testingapp.models.testmodels import Section
 from testingapp import db
 import itertools
 import numpy as np
-from scipy.spatial import distance
 from Levenshtein import distance as lev_distance
 
 def get_graph_vectorized(domain_id, is_generated):
     all_states = KnowledgeSpace.query.filter_by(domain_id=domain_id, iita_generated=is_generated).order_by(KnowledgeSpace.id)
+    all_states = [state for state in all_states]
     num_nodes = len(all_states)
     graph_vector = np.zeros((1, num_nodes ** 2))
 
