@@ -5,7 +5,7 @@ from testingapp.models.testmodels import Item, Option, ItemResult, Section
 from testingapp.services.kst_services import create_knowledge_space, create_df
 from testingapp.services.testing_services import get_next_question, update_rule
 from testingapp.utils.authutils import get_user_if_logged_in
-from testingapp.services.kspace_service import save_kspace, init_probs, init_probs_by_domain
+from testingapp.services.kspace_service import save_kspace, init_probs, init_probs_by_domain, calc_graph_distance
 
 item_result_bp = Blueprint('itemresult', __name__)
 
@@ -84,12 +84,16 @@ def create_ks():
 
 @item_result_bp.route('/itemresult/compare', methods=['GET'])
 def compare_ks():
-    kspace = KnowledgeSpace.query.filter_by(domain_id=1)
+    domain_id = request.args.get('domain_id')
 
-    for node in kspace:
-        print(node.problem, node.target_problems)
+    ks_custom = KnowledgeSpace.query.filter_by(domain_id=domain_id, iita_generated=True)
+    ks_exp = KnowledgeSpace.query.filter_by(domain_id=domain_id, iita_generated=False)
 
+    ks_custom_json = [node.to_dict(only=("id", "target_problems", "problem")) for node in ks_custom]
+    ks_exp_json = [node.to_dict(only=("id", "target_problems", "problem")) for node in ks_exp]
 
-    return jsonify([node.to_dict(only=("id", "target_problems", "problem")) for node in kspace])
+    distance = calc_graph_distance(domain_id)
+
+    return jsonify({"ks_expected":ks_exp_json, "ks_real":ks_custom_json, "distance":distance})
 
 
