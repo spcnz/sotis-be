@@ -14,13 +14,13 @@ item_result_bp = Blueprint('itemresult', __name__)
 def create_item_result():
     try:
 
-        #TODO: ovo se mora vratit posle, samo test sad
+        # TODO: ovo se mora vratit posle, samo test sad
         user = get_user_if_logged_in()
         if not user:  # or user.role != 'student':
             return Response(status=400)
         user_id = user.id
 
-        #user_id = 5
+        # user_id = 5
 
         data = request.json
         responses = data.get("responses")
@@ -81,6 +81,7 @@ def create_ks():
 
     return jsonify([node.to_dict(only=("id", "target_problems", "problem")) for node in kspace])
 
+
 @item_result_bp.route('/itemresult/compare', methods=['GET'])
 def compare_ks():
     domain_id = request.args.get('domain_id')
@@ -93,6 +94,4 @@ def compare_ks():
 
     distance = calc_graph_distance(domain_id)
 
-    return jsonify({"ks_expected":ks_exp_json, "ks_real":ks_custom_json, "distance":distance})
-
-
+    return jsonify({"ks_expected": ks_exp_json, "ks_real": ks_custom_json, "distance": distance})
