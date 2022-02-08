@@ -1,12 +1,13 @@
 from flask import Blueprint, request, jsonify, Response, send_file
 from testingapp import db
-from testingapp.models.testmodels import Test, Subject, Part
+from testingapp.models.testmodels import Test, Subject, Part, ItemResult, Section
 from testingapp.models.usermodels import User
 from testingapp.models.kspacemodels import KnowledgeSpace
+from testingapp.services.kst_services import create_df, create_knowledge_space
 from testingapp.services.testing_services import get_next_question
 from testingapp.utils.authutils import get_user_if_logged_in
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from testingapp.services.kspace_service import init_probs
+from testingapp.services.kspace_service import init_probs, save_kspace
 from testingapp.services.testing_services import get_next_question
 import zipfile
 import os
@@ -56,13 +57,38 @@ def get_by_id(id):
 @test_bp.route('/test/<id>/start', methods=['GET'])
 @jwt_required
 def get_first_question(id):
-    test = Test.query.get(id)
-    if not test:
-        return Response(status=400)
-        
-    kspace = init_probs(test)
-    question = get_next_question(test.parts[0].id)
-    return jsonify(question.to_dict())
+    try:
+        test = Test.query.get(id)
+        if not test:
+            return Response(status=400)
+
+        kspace = init_probs(test)
+        question = get_next_question(test.parts[0].id)
+        return jsonify(question.to_dict())
+    except:
+        item_results_query_set = ItemResult.query.all()
+        sections_query_set = Section.query.all()
+
+        kspace = KnowledgeSpace.query.filter_by(domain_id=1)
+
+        keys, df = create_df(sections_query_set, item_results_query_set)
+
+        print("KLJUCEVI ", keys)
+        print("DF ", df)
+
+        knowledge_space = create_knowledge_space(df, version=1)
+        print("ITA KS ", knowledge_space)
+
+        save_kspace(knowledge_space, list(keys), domain_id=1)
+
+        test = Test.query.get(id)
+        if not test:
+            return Response(status=400)
+
+        kspace = init_probs(test)
+        question = get_next_question(1)
+        return jsonify(question.to_dict())
+
 
 @test_bp.route('/test/<id>/guided', methods=['GET'])
 def start_test(id):

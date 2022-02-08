@@ -5,17 +5,19 @@ import itertools
 import numpy as np
 from Levenshtein import distance as lev_distance
 
+
 def get_graph_vectorized(domain_id, is_generated):
-    all_states = KnowledgeSpace.query.filter_by(domain_id=domain_id, iita_generated=is_generated).order_by(KnowledgeSpace.id)
+    all_states = KnowledgeSpace.query.filter_by(domain_id=domain_id, iita_generated=is_generated).order_by(
+        KnowledgeSpace.id)
     all_states = [state for state in all_states]
     num_nodes = len(all_states)
-    graph_vector = np.zeros((1, num_nodes ** 2))
+    graph_vector = np.zeros((num_nodes ** 2))
 
     for i, state in enumerate(all_states):
         for target_state in state.target_problems:
             graph_vector[(i + 1) * target_state.id] = 1
 
-    print(graph_vector)
+    graph_vector = "".join([str(int(item)) for item in graph_vector])
     return graph_vector
 
 
@@ -24,6 +26,7 @@ def calc_graph_distance(domain_id):
     graph_b_vec = get_graph_vectorized(domain_id, is_generated=False)
 
     return lev_distance(graph_a_vec, graph_b_vec)
+
 
 def bfs(kspace_node, graph_node, visited_nodes, processing_nodes):
     visited_nodes.append(kspace_node)
@@ -38,10 +41,10 @@ def bfs(kspace_node, graph_node, visited_nodes, processing_nodes):
                 graph_node["target_problems"].append()
 
 
-
 def serialize_graph(domain_id, is_generated):
     visited_nodes = []
-    start_node = KnowledgeSpace.query.filter_by(domain_id=domain_id, iita_generated=is_generated, source_problems=[]).first()
+    start_node = KnowledgeSpace.query.filter_by(domain_id=domain_id, iita_generated=is_generated,
+                                                source_problems=[]).first()
 
     start_node = {"id": 0, "source_problems": [], "target_problems": []}
 

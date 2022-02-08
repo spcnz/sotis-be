@@ -42,9 +42,8 @@ def create_item_result():
         domain_id = Section.query.get(section_id).part_id
         update_rule(domain_id, new_result[-1])
         question = get_next_question(domain_id)
-        print("VRACAM TI OVO ", question)
 
-        return jsonify(question.to_dict())
+        return jsonify(question.to_dict()) if question is not None else Response(status=204)
     except Exception as error:
         print(error)
         return Response(status=400)
@@ -66,12 +65,7 @@ def create_ks():
     kspace = KnowledgeSpace.query.filter_by(domain_id=1)
     if kspace.count() == 0:
         keys, df = create_df(sections_query_set, item_results_query_set)
-
-        print("KLJUCEVI ", keys)
-        print("DF ", df)
-
         knowledge_space = create_knowledge_space(df, version=1)
-        print("ITA KS ", knowledge_space)
 
         save_kspace(knowledge_space, list(keys), domain_id=1)
         kspace = KnowledgeSpace.query.filter_by(domain_id=1)
@@ -89,8 +83,8 @@ def compare_ks():
     ks_custom = KnowledgeSpace.query.filter_by(domain_id=domain_id, iita_generated=True)
     ks_exp = KnowledgeSpace.query.filter_by(domain_id=domain_id, iita_generated=False)
 
-    ks_custom_json = [node.to_dict(only=("id", "target_problems", "problem")) for node in ks_custom]
-    ks_exp_json = [node.to_dict(only=("id", "target_problems", "problem")) for node in ks_exp]
+    ks_custom_json = [node.to_dict(only=("id", "target_problems", "problem", "probability")) for node in ks_custom]
+    ks_exp_json = [node.to_dict(only=("id", "target_problems", "problem", "probability")) for node in ks_exp]
 
     distance = calc_graph_distance(domain_id)
 
